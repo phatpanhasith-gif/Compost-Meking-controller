@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f1e">
+<title>Compost Machine Controller Web</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0a1a;--card:#181530;--border:#2e2a52;--text:#f5f3ff;--muted:#a9a3c9;
+    --temp:#fb7185;--hum:#2dd4bf;--motor-off:#6b7280;--motor-on:#22c55e;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;color:var(--text);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(251,113,133,.10), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(45,212,191,.12), transparent 45%),
+      var(--bg);
+    font-family:system-ui,-apple-system,"Noto Sans Khmer",sans-serif;
+    padding:32px 16px calc(24px + env(safe-area-inset-bottom,0px));
+    padding-top:calc(32px + env(safe-area-inset-top,0px));
+    display:flex;flex-direction:column;align-items:center}
+  .title{font-size:2.1rem;font-weight:800;text-align:center;margin:0;
+    background:linear-gradient(90deg,#2dd4bf,#a78bfa,#fb7185);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.5px}
+  .team{color:var(--muted);text-align:center;margin:8px 0 20px;font-size:1.1rem;font-weight:500}
+  .team b{color:var(--text)}
+
+  /* Motor Status Banner */
+  .motor-card {
+    width: 100%; max-width: 900px; margin-bottom: 20px; padding: 16px 24px;
+    border-radius: 16px; background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 8px 24px -10px rgba(0,0,0,0.5);
+  }
+  .motor-info { display: flex; align-items: center; gap: 12px; }
+  .motor-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  .motor-badge {
+    padding: 6px 16px; border-radius: 999px; font-weight: 800; font-size: 0.95rem;
+    display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+    background: rgba(107, 114, 128, 0.2); color: var(--motor-off); border: 1px solid var(--motor-off);
+    transition: all 0.3s ease;
+  }
+  .motor-badge.active {
+    background: rgba(34, 197, 94, 0.2); color: var(--motor-on); border-color: var(--motor-on);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+  }
+  .motor-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+  .motor-badge.active .motor-dot { animation: pulse 1.5s infinite; }
+
+  .stats{display:grid;gap:20px;width:100%;max-width:900px;grid-template-columns:1fr 1fr}
+  .stat{position:relative;overflow:hidden;border-radius:20px;padding:28px 20px;text-align:center;
+    background:linear-gradient(165deg,rgba(255,255,255,.04),var(--card) 55%);
+    border:1px solid var(--border);
+    box-shadow:0 10px 30px -12px rgba(0,0,0,.55);
+    transition:transform .25s ease, box-shadow .25s ease}
+  .stat::before{content:"";position:absolute;top:-40%;right:-30%;width:70%;height:70%;
+    border-radius:50%;filter:blur(30px);opacity:.25;pointer-events:none}
+  .stat.temp::before{background:var(--temp)}
+  .stat.hum::before{background:var(--hum)}
+  .stat:hover{transform:translateY(-3px)}
+  .stat.temp:hover{box-shadow:0 14px 34px -10px rgba(251,113,133,.35)}
+  .stat.hum:hover{box-shadow:0 14px 34px -10px rgba(45,212,191,.35)}
+  .stat .icon{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:1.3rem;margin:0 auto 14px}
+  .stat.temp .icon{background:rgba(251,113,133,.15);box-shadow:inset 0 0 0 1px rgba(251,113,133,.35)}
+  .stat.hum .icon{background:rgba(45,212,191,.15);box-shadow:inset 0 0 0 1px rgba(45,212,191,.35)}
+  .stat .label{position:relative;color:var(--muted);font-size:1.15rem;font-weight:600;letter-spacing:.2px}
+  .stat .value{position:relative;font-size:2.6rem;font-weight:800;margin-top:10px;
+    letter-spacing:.5px;font-variant-numeric:tabular-nums}
+  .stat.temp .value{color:var(--temp);text-shadow:0 0 22px rgba(251,113,133,.35)}
+  .stat.hum .value{color:var(--hum);text-shadow:0 0 22px rgba(45,212,191,.35)}
+  .stat .unit{font-size:1.2rem;color:var(--muted);margin-left:3px;font-weight:700}
+  .stat .range{position:relative;height:6px;border-radius:999px;background:#0f1830;
+    margin-top:18px;overflow:hidden}
+  .stat .range>div{height:100%;width:0;border-radius:999px;transition:width .8s ease}
+  .stat.temp .range>div{background:linear-gradient(90deg,#f43f5e,#fb7185)}
+  .stat.hum .range>div{background:linear-gradient(90deg,#0d9488,#2dd4bf)}
+  .stat .minmax{position:relative;display:flex;justify-content:space-between;
+    margin-top:6px;font-size:.7rem;color:var(--muted);opacity:.75}
+
+  .panel{width:100%;max-width:900px;background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:20px;margin-top:20px}
+  .panel h2{margin:0 0 16px;font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:8px}
+  .legend{display:flex;justify-content:center;gap:28px;margin-bottom:8px;flex-wrap:wrap}
+  .legend .item{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:500;color:var(--muted)}
+  .legend .swatch{width:34px;height:14px;border:2px solid;border-radius:3px}
+  .chart-wrap{position:relative;height:320px}
+
+  .status{margin-top:20px;font-size:.95rem;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#ef4444}
+  .status.live .dot{background:var(--temp);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+
+  footer{margin-top:36px;text-align:center;color:var(--muted);font-size:.95rem;
+    border-top:1px solid var(--border);padding-top:16px;width:100%;max-width:900px}
+  footer .credit{color:var(--text);font-weight:700;margin-bottom:2px;font-size:1.05rem}
+
+  @media (max-width:520px){
+    .title{font-size:1.4rem}
+    .stats{grid-template-columns:1fr 1fr}
+    .stat .value{font-size:1.8rem}
+    .stat .label{font-size:.95rem}
+    .motor-card { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+  <h1 class="title">COMPOST MACHINE CONTROLLER WEB</h1>
+  <div class="team">Team : <b>Potensial of youth</b></div>
+
+  <!-- Motor Status Banner -->
+  <div class="motor-card">
+    <div class="motor-info">
+      <span style="font-size: 1.5rem;">⚙️</span>
+      <span class="motor-title">ស្ថានភាពម៉ាស៊ីន (Motor Status)</span>
+    </div>
+    <div class="motor-badge" id="motorBadge">
+      <span class="motor-dot"></span>
+      <span id="motorText">STOPPED</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat temp">
+      <div class="icon">🌡️</div>
+      <div class="label">DS1820 Temperature សីតុណ្ហភាព</div>
+      <div class="value"><span id="t">--</span><span class="unit">°C</span></div>
+      <div class="range"><div id="tr"></div></div>
+      <div class="minmax"><span>0°C</span><span>80°C</span></div>
+    </div>
+    <div class="stat hum">
+      <div class="icon">💧</div>
+      <div class="label">DHT22 Humidity សំណើម</div>
+      <div class="value"><span id="h">--</span><span class="unit">%</span></div>
+      <div class="range"><div id="hr"></div></div>
+      <div class="minmax"><span>0%</span><span>100%</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>🌡️ Temperature &amp; Humidity Over Time</h2>
+    <div class="legend">
+      <div class="item"><span class="swatch" style="border-color:#fb7185"></span>DS1820 Temp (°C)</div>
+      <div class="item"><span class="swatch" style="border-color:#2dd4bf"></span>DHT22 Hum (%)</div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  </div>
+
+  <div class="status" id="status"><span class="dot"></span><span id="st">កំពុងភ្ជាប់...</span></div>
+
+  <footer>
+    <div class="credit">Design By Phat Panha Sith</div>
+    <div>Location : Hun Sen Khchau High School, Kampong Cham Province</div>
+  </footer>
+
+<script>
+  const DB_URL = "https://compost-making-machine-default-rtdb.firebaseio.com/compost.json";
+  const $ = id => document.getElementById(id);
+  const MAX_POINTS = 15;
+  const PUSH_INTERVAL_MS = 60000;
+  let lastPush = 0;
+
+  const ctx = document.getElementById('chart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'DS1820 Temp (°C)',
+          data: [],
+          borderColor: '#fb7185',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#181530',
+          pointBorderColor: '#fb7185',
+          tension: 0.35,
+          pointRadius: 4,
+          pointBorderWidth: 2,
+          borderWidth: 2
+        },
+        {
+          label: 'DHT22 Hum (%)',
+          data: [],
+          borderColor: '#2dd4bf',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#181530',
+          pointBorderColor: '#2dd4bf',
+          tension: 0.35,
+          pointRadius: 4,
+          pointBorderWidth: 2,
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#9aa5bf', maxRotation: 45, minRotation: 45 }, grid: { color: '#232d47' } },
+        y: { min: 0, max: 100, ticks: { color: '#9aa5bf', stepSize: 10 }, grid: { color: '#232d47' } }
+      }
+    }
+  });
+
+  function pushPoint(temp, hum){
+    const label = new Date().toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true});
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(temp);
+    chart.data.datasets[1].data.push(hum);
+    if (chart.data.labels.length > MAX_POINTS){
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+      chart.data.datasets[1].data.shift();
+    }
+    chart.update();
+  }
+
+  async function update(){
+    const s = $("status");
+    try{
+      const r = await fetch(DB_URL, {cache:"no-store"});
+      if (!r.ok) throw new Error(r.status);
+      const d = await r.json();
+      if (!d) throw new Error("no data");
+
+      const temp = typeof d.temp === "number" ? d.temp : null;
+      const hum  = typeof d.hum  === "number" ? d.hum  : null;
+      const isMotorRunning = d.motor === true || d.motor === 1 || d.motor === "RUNNING";
+
+      // Update Motor Status Banner
+      const badge = $("motorBadge");
+      const motorText = $("motorText");
+      if (isMotorRunning) {
+        badge.classList.add("active");
+        motorText.textContent = "RUNNING (កំពុងដំណើរការ)";
+      } else {
+        badge.classList.remove("active");
+        motorText.textContent = "STOPPED (ទំនេរ)";
+      }
+
+      if (temp !== null){
+        $("t").textContent = temp.toFixed(1);
+        $("tr").style.width = Math.max(0, Math.min(100, temp / 80 * 100)) + "%";
+      }
+      if (hum  !== null){
+        $("h").textContent = hum.toFixed(1);
+        $("hr").style.width = Math.max(0, Math.min(100, hum)) + "%";
+      }
+
+      const now = Date.now();
+      if (temp !== null && hum !== null && now - lastPush >= PUSH_INTERVAL_MS){
+        lastPush = now;
+        pushPoint(temp, hum);
+      }
+
+      s.className = "status live";
+      $("st").textContent = "ផ្ទាល់ · " + new Date().toLocaleTimeString();
+    }catch(e){
+      s.className = "status";
+      $("st").textContent = "មិនអាចភ្ជាប់ Firebase";
+    }
+  }
+
+  update();
+  setInterval(update, 2000);
+</script>
+</body>
+</html>
