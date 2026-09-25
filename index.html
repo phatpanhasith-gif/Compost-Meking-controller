@@ -24,6 +24,7 @@
             --accent-motor: #ff9f43;
             --accent-heater: #ff6b6b;
             --accent-fan: #10ac84;
+            --accent-stage: #a29bfe;
             --success-glow: rgba(16, 172, 132, 0.25);
             --danger-glow: rgba(255, 71, 87, 0.25);
         }
@@ -40,238 +41,94 @@
             align-items: center;
         }
 
-        /* --- Header Section --- */
-        .dashboard-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
+        /* Header */
+        .dashboard-header { text-align: center; margin-bottom: 35px; }
         .main-title {
-            font-size: 2.3rem;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
+            font-size: 2.3rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
             background: linear-gradient(90deg, #10ac84 0%, #54a0ff 50%, #ff6b6b 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
         }
+        .team-subtitle { color: var(--text-secondary); font-size: 1.05rem; }
+        .team-subtitle strong { color: #ffffff; }
 
-        .team-subtitle {
-            color: var(--text-secondary);
-            font-size: 1.05rem;
-            font-weight: 500;
-        }
-
-        .team-subtitle strong {
-            color: #ffffff;
-            font-weight: 700;
-        }
-
-        /* --- Alert Banner --- */
+        /* Alert Banner */
         .alert-banner {
-            display: none;
-            width: 100%;
-            max-width: 1050px;
-            background: rgba(255, 71, 87, 0.15);
-            border: 1px solid #ff4757;
-            color: #ff4757;
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 1.1rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 25px rgba(255, 71, 87, 0.3);
+            display: none; width: 100%; max-width: 1050px;
+            background: rgba(255, 71, 87, 0.15); border: 1px solid #ff4757; color: #ff4757;
+            padding: 16px; border-radius: 16px; margin-bottom: 25px; text-align: center; font-weight: 700;
+            backdrop-filter: blur(10px); box-shadow: 0 0 25px rgba(255, 71, 87, 0.3);
             animation: pulse-alert 1s infinite alternate;
         }
+        @keyframes pulse-alert { from { transform: scale(0.99); } to { transform: scale(1.01); } }
 
-        @keyframes pulse-alert {
-            from { transform: scale(0.99); }
-            to { transform: scale(1.01); }
-        }
-
-        /* --- Grid Layout ( 3 Columns x 2 Rows ) --- */
+        /* Grid Layout ( 3x2 ) */
         .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
-            width: 100%;
-            max-width: 1050px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+            width: 100%; max-width: 1050px; margin-bottom: 30px;
         }
-
         .metric-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 24px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 24px; padding: 24px; backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;
         }
+        .metric-card:hover { transform: translateY(-6px); border-color: rgba(255, 255, 255, 0.25); }
 
-        .metric-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-        }
-
-        .card-title {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
+        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .card-title { color: var(--text-secondary); font-size: 0.95rem; font-weight: 600; }
 
         .icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 48px; height: 48px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .temp-icon { color: var(--accent-temp); background: rgba(255, 71, 87, 0.12); }
         .hum-icon { color: var(--accent-hum); background: rgba(0, 210, 211, 0.12); }
         .motor-icon { color: var(--accent-motor); background: rgba(255, 159, 67, 0.12); }
         .heater-icon { color: var(--accent-heater); background: rgba(255, 107, 107, 0.12); }
         .fan-icon { color: var(--accent-fan); background: rgba(16, 172, 132, 0.12); }
+        .stage-icon { color: var(--accent-stage); background: rgba(162, 155, 254, 0.12); }
 
-        .metric-value-container {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-        }
+        .metric-value-container { display: flex; align-items: baseline; gap: 8px; }
+        .metric-value { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .metric-unit { font-size: 1.1rem; color: var(--text-secondary); font-weight: 600; }
 
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            letter-spacing: -1px;
-        }
-
-        .metric-unit {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        /* --- Status Pills --- */
         .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-top: 5px;
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+            border-radius: 30px; font-size: 0.88rem; font-weight: 700; margin-top: 5px;
         }
+        .status-on { background: rgba(16, 172, 132, 0.15); color: #10ac84; border: 1px solid rgba(16, 172, 132, 0.4); }
+        .status-off { background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); }
+        .status-stage { background: rgba(162, 155, 254, 0.15); color: #a29bfe; border: 1px solid rgba(162, 155, 254, 0.4); }
+        .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; box-shadow: 0 0 8px currentColor; }
 
-        .status-on {
-            background: rgba(16, 172, 132, 0.15);
-            color: #10ac84;
-            border: 1px solid rgba(16, 172, 132, 0.4);
-            box-shadow: 0 0 15px var(--success-glow);
-        }
-
-        .status-off {
-            background: rgba(255, 71, 87, 0.15);
-            color: #ff4757;
-            border: 1px solid rgba(255, 71, 87, 0.4);
-            box-shadow: 0 0 15px var(--danger-glow);
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: currentColor;
-            box-shadow: 0 0 8px currentColor;
-        }
-
-        /* --- Chart Section --- */
+        /* Chart */
         .chart-container-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 28px;
-            width: 100%;
-            max-width: 1050px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            margin-bottom: 40px;
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 28px; padding: 28px; width: 100%; max-width: 1050px;
+            backdrop-filter: blur(16px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); margin-bottom: 40px;
         }
+        .chart-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
-        .chart-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        /* Footer */
+        .dashboard-footer { text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; width: 100%; max-width: 1050px; }
+        .footer-designer { font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+        .footer-location { font-size: 0.95rem; color: var(--text-secondary); }
 
-        /* --- Footer Section --- */
-        .dashboard-footer {
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 20px;
-            width: 100%;
-            max-width: 1050px;
-        }
-
-        .footer-designer {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 6px;
-        }
-
-        .footer-location {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        @media (max-width: 900px) {
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-            .main-title { font-size: 1.7rem; }
-        }
-        @media (max-width: 600px) {
-            .metrics-grid { grid-template-columns: 1fr; }
-            .main-title { font-size: 1.3rem; }
-        }
+        @media (max-width: 900px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .metrics-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <!-- Header ( តាមរូបភាព[cite: 6] ) -->
     <div class="dashboard-header">
         <h1 class="main-title">COMPOST MACHINE CONTROLLER WEB</h1>
         <p class="team-subtitle">Team : <strong>Potensial of youth</strong></p>
     </div>
 
-    <!-- Alert Box -->
     <div class="alert-banner" id="alert-box">
         <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
     </div>
 
-    <!-- Grid Cards ( 3 x 2 Layout ) -->
     <div class="metrics-grid">
         <!-- 1. Temp -->
         <div class="metric-card">
@@ -336,21 +193,21 @@
             </div>
         </div>
 
-        <!-- 6. System Status Card -->
+        <!-- 6. NEW: Compost Stage Card ( បង្ហាញដំណាក់កាលកំប៉ុស ) -->
         <div class="metric-card">
             <div class="card-top">
-                <span class="card-title">ប្រព័ន្ធគ្រប់គ្រង (System)</span>
-                <div class="icon-wrapper" style="color: #54a0ff; background: rgba(84, 160, 255, 0.12);"><i class="fa-solid fa-shield-halved"></i></div>
+                <span class="card-title">ដំណាក់កាលកំប៉ុស (Compost Stage)</span>
+                <div class="icon-wrapper stage-icon"><i class="fa-solid fa-diagram-project"></i></div>
             </div>
             <div>
-                <span class="status-pill status-on">
-                    <span class="pulse-dot"></span>ONLINE
+                <span class="status-pill status-stage">
+                    <span class="pulse-dot"></span><span id="stage-text">MESOPHILIC</span>
                 </span>
             </div>
         </div>
     </div>
 
-    <!-- Chart Section -->
+    <!-- Chart Card -->
     <div class="chart-container-card">
         <div class="chart-title">
             <i class="fa-solid fa-chart-line" style="color: #00d2d3;"></i> ក្រាហ្វសីតុណ្ហភាព និងសំណើម (Real-time Analytics)
@@ -358,14 +215,13 @@
         <canvas id="realtimeChart" height="90"></canvas>
     </div>
 
-    <!-- Footer ( តាមរូបភាព[cite: 5] ) -->
+    <!-- Footer -->
     <div class="dashboard-footer">
         <div class="footer-designer">Design By Phat Panha Sith</div>
         <div class="footer-location">Location : Hun Sen Khchau High School, Kampong Cham Province</div>
     </div>
 
     <script>
-        // 1. Audio Alarm System
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let alarmInterval = null;
 
@@ -376,10 +232,8 @@
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(900, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.25);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.25);
         }
 
         function playAlarm() {
@@ -392,9 +246,7 @@
             if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
         }
 
-        // 2. Chart Setup
         const ctx = document.getElementById('realtimeChart').getContext('2d');
-        
         const tempGradient = ctx.createLinearGradient(0, 0, 0, 300);
         tempGradient.addColorStop(0, 'rgba(255, 71, 87, 0.4)');
         tempGradient.addColorStop(1, 'rgba(255, 71, 87, 0.0)');
@@ -408,44 +260,18 @@
             data: {
                 labels: [],
                 datasets: [
-                    {
-                        label: 'សីតុណ្ហភាព (°C)',
-                        data: [],
-                        borderColor: '#ff4757',
-                        borderWidth: 3,
-                        backgroundColor: tempGradient,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#ff4757'
-                    },
-                    {
-                        label: 'សំណើម (%)',
-                        data: [],
-                        borderColor: '#00d2d3',
-                        borderWidth: 3,
-                        backgroundColor: humGradient,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#00d2d3'
-                    }
+                    { label: 'សីតុណ្ហភាព (°C)', data: [], borderColor: '#ff4757', borderWidth: 3, backgroundColor: tempGradient, fill: true, tension: 0.4 },
+                    { label: 'សំណើម (%)', data: [], borderColor: '#00d2d3', borderWidth: 3, backgroundColor: humGradient, fill: true, tension: 0.4 }
                 ]
             },
             options: {
                 responsive: true,
-                scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
-                },
-                plugins: { legend: { labels: { color: '#ffffff', font: { family: 'Kantumruy Pro' } } } }
+                scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } },
+                plugins: { legend: { labels: { color: '#ffffff' } } }
             }
         });
 
-        // 3. Firebase Integration
-        const firebaseConfig = {
-            databaseURL: "https://compost-making-machine-default-rtdb.firebaseio.com"
-        };
+        const firebaseConfig = { databaseURL: "https://compost-making-machine-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -458,25 +284,20 @@
                 document.getElementById('temp-val').innerText = tempVal.toFixed(1);
                 document.getElementById('hum-val').innerText = humVal.toFixed(1);
 
-                // Alarm Check
-                if (tempVal > 50.0) { playAlarm(); } else { stopAlarm(); }
+                if (tempVal > 50.0) playAlarm(); else stopAlarm();
 
-                // Motor Status
-                const motorPill = document.getElementById('motor-pill');
                 document.getElementById('motor-text').innerText = data.motor === 1 ? "RUNNING" : "STOPPED";
-                motorPill.className = data.motor === 1 ? "status-pill status-on" : "status-pill status-off";
+                document.getElementById('motor-pill').className = data.motor === 1 ? "status-pill status-on" : "status-pill status-off";
 
-                // Heater Status
-                const heaterPill = document.getElementById('heater-pill');
                 document.getElementById('heater-text').innerText = data.heater || "OFF";
-                heaterPill.className = data.heater === "ON" ? "status-pill status-on" : "status-pill status-off";
+                document.getElementById('heater-pill').className = data.heater === "ON" ? "status-pill status-on" : "status-pill status-off";
 
-                // Fan Status
-                const fanPill = document.getElementById('fan-pill');
                 document.getElementById('fan-text').innerText = data.fan || "OFF";
-                fanPill.className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
+                document.getElementById('fan-pill').className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
 
-                // Chart Push
+                // អាប់ដេតដំណាក់កាល (Compost Stage Text)
+                document.getElementById('stage-text').innerText = data.stage || "MESOPHILIC";
+
                 const nowLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 if (realtimeChart.data.labels.length > 10) {
                     realtimeChart.data.labels.shift();
