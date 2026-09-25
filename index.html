@@ -24,7 +24,6 @@
             --accent-motor: #ff9f43;
             --accent-heater: #ff6b6b;
             --accent-fan: #10ac84;
-            --accent-stage: #a29bfe;
             --success-glow: rgba(16, 172, 132, 0.25);
             --danger-glow: rgba(255, 71, 87, 0.25);
         }
@@ -42,7 +41,7 @@
         }
 
         /* Header */
-        .dashboard-header { text-align: center; margin-bottom: 35px; }
+        .dashboard-header { text-align: center; margin-bottom: 30px; }
         .main-title {
             font-size: 2.3rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
             background: linear-gradient(90deg, #10ac84 0%, #54a0ff 50%, #ff6b6b 100%);
@@ -61,7 +60,99 @@
         }
         @keyframes pulse-alert { from { transform: scale(0.99); } to { transform: scale(1.01); } }
 
-        /* Grid Layout ( 3x2 ) */
+        /* --- Stepped Process Tracker UI --- */
+        .tracker-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 28px; padding: 28px; width: 100%; max-width: 1050px;
+            backdrop-filter: blur(16px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .tracker-header {
+            font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 25px; display: flex; align-items: center; gap: 10px;
+        }
+
+        .stepper-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .stepper-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        .step-item {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            transition: all 0.4s ease;
+        }
+
+        .step-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .step-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+        }
+
+        /* Active Step Style ( ពេលដល់ដំណាក់កាលណា ភ្លឺដំណាក់កាលនោះ ) */
+        .step-item.active .step-icon {
+            background: linear-gradient(135deg, #10ac84, #54a0ff);
+            border-color: #54a0ff;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(84, 160, 255, 0.6);
+            transform: scale(1.15);
+        }
+
+        .step-item.active .step-title {
+            color: #54a0ff;
+        }
+
+        .step-item.active .step-desc {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .step-item.completed .step-icon {
+            background: rgba(16, 172, 132, 0.2);
+            border-color: #10ac84;
+            color: #10ac84;
+        }
+
+        /* Grid Layout ( 5 Cards ) */
         .metrics-grid {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
             width: 100%; max-width: 1050px; margin-bottom: 30px;
@@ -86,7 +177,6 @@
         .motor-icon { color: var(--accent-motor); background: rgba(255, 159, 67, 0.12); }
         .heater-icon { color: var(--accent-heater); background: rgba(255, 107, 107, 0.12); }
         .fan-icon { color: var(--accent-fan); background: rgba(16, 172, 132, 0.12); }
-        .stage-icon { color: var(--accent-stage); background: rgba(162, 155, 254, 0.12); }
 
         .metric-value-container { display: flex; align-items: baseline; gap: 8px; }
         .metric-value { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
@@ -98,7 +188,6 @@
         }
         .status-on { background: rgba(16, 172, 132, 0.15); color: #10ac84; border: 1px solid rgba(16, 172, 132, 0.4); }
         .status-off { background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); }
-        .status-stage { background: rgba(162, 155, 254, 0.15); color: #a29bfe; border: 1px solid rgba(162, 155, 254, 0.4); }
         .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; box-shadow: 0 0 8px currentColor; }
 
         /* Chart */
@@ -114,23 +203,63 @@
         .footer-designer { font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
         .footer-location { font-size: 0.95rem; color: var(--text-secondary); }
 
-        @media (max-width: 900px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 900px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .stepper-wrapper { flex-direction: column; gap: 20px; }
+            .stepper-wrapper::before { display: none; }
+        }
         @media (max-width: 600px) { .metrics-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
+    <!-- Header -->
     <div class="dashboard-header">
         <h1 class="main-title">COMPOST MACHINE CONTROLLER WEB</h1>
         <p class="team-subtitle">Team : <strong>Potensial of youth</strong></p>
     </div>
 
+    <!-- Alert Box -->
     <div class="alert-banner" id="alert-box">
         <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
     </div>
 
+    <!-- Stepped Process Tracker Card -->
+    <div class="tracker-card">
+        <div class="tracker-header">
+            <i class="fa-solid fa-bars-staggered" style="color: #54a0ff;"></i> ដំណាក់កាលនៃដំណើរការកំប៉ុស (Compost Timeline Tracker)
+        </div>
+        <div class="stepper-wrapper">
+            <!-- Step 1 -->
+            <div class="step-item active" id="step-1">
+                <div class="step-icon"><i class="fa-solid fa-seedling"></i></div>
+                <div class="step-title">១. ចាប់ផ្តើមផ្អែម</div>
+                <div class="step-desc">Mesophilic (&lt;40°C)</div>
+            </div>
+            <!-- Step 2 -->
+            <div class="step-item" id="step-2">
+                <div class="step-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                <div class="step-title">២. បំបែកខ្លាំង</div>
+                <div class="step-desc">Thermophilic (40-60°C)</div>
+            </div>
+            <!-- Step 3 -->
+            <div class="step-item" id="step-3">
+                <div class="step-icon"><i class="fa-solid fa-wind"></i></div>
+                <div class="step-title">៣. បញ្ចុះកម្ដៅ</div>
+                <div class="step-desc">Cooling Phase</div>
+            </div>
+            <!-- Step 4 -->
+            <div class="step-item" id="step-4">
+                <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="step-title">៤. ជីឆ្អិនពេញលេញ</div>
+                <div class="step-desc">Curing / Ready</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Cards -->
     <div class="metrics-grid">
-        <!-- 1. Temp -->
+        <!-- Temp -->
         <div class="metric-card">
             <div class="card-top">
                 <span class="card-title">សីតុណ្ហភាព (DS18B20)</span>
@@ -142,7 +271,7 @@
             </div>
         </div>
 
-        <!-- 2. Humidity -->
+        <!-- Humidity -->
         <div class="metric-card">
             <div class="card-top">
                 <span class="card-title">សំណើម (SCD41)</span>
@@ -154,7 +283,7 @@
             </div>
         </div>
 
-        <!-- 3. Motor Status -->
+        <!-- Motor Status -->
         <div class="metric-card">
             <div class="card-top">
                 <span class="card-title">ម៉ូទ័រកិន (Motor)</span>
@@ -167,7 +296,7 @@
             </div>
         </div>
 
-        <!-- 4. Heater Status -->
+        <!-- Heater Status -->
         <div class="metric-card">
             <div class="card-top">
                 <span class="card-title">បន្ទះកម្ដៅ (Heater)</span>
@@ -180,7 +309,7 @@
             </div>
         </div>
 
-        <!-- 5. Fan Status -->
+        <!-- Fan Status -->
         <div class="metric-card">
             <div class="card-top">
                 <span class="card-title">កង្ហារ (Cooling Fan)</span>
@@ -189,19 +318,6 @@
             <div>
                 <span id="fan-pill" class="status-pill status-off">
                     <span class="pulse-dot"></span><span id="fan-text">OFF</span>
-                </span>
-            </div>
-        </div>
-
-        <!-- 6. NEW: Compost Stage Card ( បង្ហាញដំណាក់កាលកំប៉ុស ) -->
-        <div class="metric-card">
-            <div class="card-top">
-                <span class="card-title">ដំណាក់កាលកំប៉ុស (Compost Stage)</span>
-                <div class="icon-wrapper stage-icon"><i class="fa-solid fa-diagram-project"></i></div>
-            </div>
-            <div>
-                <span class="status-pill status-stage">
-                    <span class="pulse-dot"></span><span id="stage-text">MESOPHILIC</span>
                 </span>
             </div>
         </div>
@@ -244,6 +360,20 @@
         function stopAlarm() {
             document.getElementById('alert-box').style.display = 'none';
             if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
+        }
+
+        // Update Tracker Step Active state
+        function setStepActive(stepNumber) {
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (i < stepNumber) {
+                    el.className = "step-item completed";
+                } else if (i === stepNumber) {
+                    el.className = "step-item active";
+                } else {
+                    el.className = "step-item";
+                }
+            }
         }
 
         const ctx = document.getElementById('realtimeChart').getContext('2d');
@@ -295,8 +425,14 @@
                 document.getElementById('fan-text').innerText = data.fan || "OFF";
                 document.getElementById('fan-pill').className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
 
-                // អាប់ដេតដំណាក់កាល (Compost Stage Text)
-                document.getElementById('stage-text').innerText = data.stage || "MESOPHILIC";
+                // --- គណនាអាប់ដេត Tracker តាមសីតុណ្ហភាព និង Fan Status ---
+                if (tempVal < 40.0) {
+                    setStepActive(1); // ដំណាក់កាលទី ១: ចាប់ផ្តើមផ្អែម
+                } else if (tempVal >= 40.0 && tempVal <= 50.0) {
+                    setStepActive(2); // ដំណាក់កាលទី ២: បំបែកខ្លាំង
+                } else if (tempVal > 50.0 || data.fan === "ON") {
+                    setStepActive(3); // ដំណាក់កាលទី ៣: បញ្ចុះកម្ដៅ (កង្ហារដើរ)
+                }
 
                 const nowLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 if (realtimeChart.data.labels.length > 10) {
