@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compost Machine Dashboard with Chart & Alarm</title>
-    <!-- Google Fonts, Font Awesome Icons, Chart.js & Firebase -->
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Smart Compost Machine Dashboard</title>
+    <!-- Google Fonts, Icons, Chart.js & Firebase -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,255 +14,403 @@
 
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
-            --accent-orange: #f97316;
+            --bg-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent-temp: #ff4757;
+            --accent-hum: #00d2d3;
+            --accent-motor: #ff9f43;
+            --accent-heater: #ff6b6b;
+            --accent-fan: #10ac84;
+            --success-glow: rgba(16, 172, 132, 0.2);
+            --danger-glow: rgba(255, 71, 87, 0.2);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kantumruy Pro', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kantumruy Pro', 'Plus Jakarta Sans', sans-serif; }
 
         body {
-            background: radial-gradient(circle at top left, #1e293b, #0f172a);
-            color: var(--text-main);
+            background: var(--bg-gradient);
+            color: var(--text-primary);
             min-height: 100vh;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 30px 15px;
         }
 
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 {
-            font-size: 2rem;
+        /* Header UI */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #34d399, #3b82f6);
+            background: linear-gradient(90deg, #00d2d3, #54a0ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; justify-content: center; gap: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
-        .header p { color: var(--text-sub); font-size: 0.95rem; margin-top: 6px; }
 
-        .alarm-banner {
+        .dashboard-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
             display: none;
-            width: 100%; max-width: 1000px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 2px solid #ef4444;
-            color: #ef4444;
-            padding: 15px; border-radius: 15px;
-            margin-bottom: 20px;
-            text-align: center; font-weight: bold; font-size: 1.2rem;
-            animation: pulse-border 1s infinite alternate;
-        }
-
-        @keyframes pulse-border {
-            from { box-shadow: 0 0 5px #ef4444; }
-            to { box-shadow: 0 0 20px #ef4444; }
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px; width: 100%; max-width: 1000px;
+            width: 100%;
+            max-width: 1050px;
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 16px;
+            border-radius: 16px;
             margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.3);
+            animation: pulse-alert 1s infinite alternate;
         }
 
-        .card {
+        @keyframes pulse-alert {
+            from { transform: scale(0.99); }
+            to { transform: scale(1.01); }
+        }
+
+        /* Grid Layout ( 3 Columns x 2 Rows Clean Layout ) */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            width: 100%;
+            max-width: 1050px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px; padding: 20px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .card-header { display: flex; align-items: center; justify-content: space-between; }
-        .card-header h3 { color: var(--text-sub); font-size: 0.9rem; }
-
-        .icon-box {
-            width: 40px; height: 40px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        .metric-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
         }
-        .temp-icon { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-        .hum-icon { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-        .motor-icon { background: rgba(249, 115, 22, 0.15); color: #f97316; }
-        .heater-icon { background: rgba(234, 179, 8, 0.15); color: #eab308; }
-        .fan-icon { background: rgba(20, 184, 166, 0.15); color: #14b8a6; }
 
-        .card-body { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; }
-        .value { font-size: 2rem; font-weight: 700; }
-        .unit { font-size: 1rem; color: var(--text-sub); }
-
-        .badge {
-            font-size: 0.85rem; padding: 5px 12px; border-radius: 20px;
-            font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
         }
-        .badge-on { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-off { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        /* Chart Section */
-        .chart-card {
+        .card-title {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .temp-icon { color: var(--accent-temp); background: rgba(255, 71, 87, 0.12); }
+        .hum-icon { color: var(--accent-hum); background: rgba(0, 210, 211, 0.12); }
+        .motor-icon { color: var(--accent-motor); background: rgba(255, 159, 67, 0.12); }
+        .heater-icon { color: var(--accent-heater); background: rgba(255, 107, 107, 0.12); }
+        .fan-icon { color: var(--accent-fan); background: rgba(16, 172, 132, 0.12); }
+
+        .metric-value-container {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+        }
+
+        .metric-unit {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Modern Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+
+        .status-on {
+            background: rgba(16, 172, 132, 0.15);
+            color: #10ac84;
+            border: 1px solid rgba(16, 172, 132, 0.4);
+            box-shadow: 0 0 15px var(--success-glow);
+        }
+
+        .status-off {
+            background: rgba(255, 71, 87, 0.15);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.4);
+            box-shadow: 0 0 15px var(--danger-glow);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Chart Card */
+        .chart-container-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px; padding: 20px;
-            width: 100%; max-width: 1000px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 28px;
+            width: 100%;
+            max-width: 1050px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-        .chart-header { margin-bottom: 15px; color: var(--text-main); font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+
+        .chart-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .metrics-grid { grid-template-columns: 1fr; }
+            .dashboard-header h1 { font-size: 1.6rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1><i class="fa-solid fa-leaf"></i> ប្រព័ន្ធគ្រប់គ្រងម៉ាស៊ីនជីកំប៉ុស</h1>
-        <p>Real-time Monitoring & Graph Analytics</p>
+    <div class="dashboard-header">
+        <h1><i class="fa-solid fa-leaf"></i> ម៉ាស៊ីនជីកំប៉ុសឆ្លាតវៃ</h1>
+        <p>Smart Compost Monitoring & Automated Control System</p>
     </div>
 
-    <!-- Alert Banner ពេលក្ដៅពេក -->
-    <div class="alarm-banner" id="alarm-banner">
+    <!-- Alarm Box -->
+    <div class="alert-banner" id="alert-box">
         <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
     </div>
 
-    <div class="container">
-        <!-- 1. សីតុណ្ហភាព -->
-        <div class="card">
-            <div class="card-header">
-                <h3>សីតុណ្ហភាព (DS18B20)</h3>
-                <div class="icon-box temp-icon"><i class="fa-solid fa-temperature-half"></i></div>
+    <!-- Grid Cards ( 3 x 2 Layout ) -->
+    <div class="metrics-grid">
+        <!-- 1. Temp -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">សីតុណ្ហភាព (DS18B20)</span>
+                <div class="icon-wrapper temp-icon"><i class="fa-solid fa-temperature-high"></i></div>
             </div>
-            <div class="card-body">
-                <span class="value" id="temp">--</span><span class="unit">°C</span>
+            <div class="metric-value-container">
+                <span class="metric-value" id="temp-val">--</span>
+                <span class="metric-unit">°C</span>
             </div>
         </div>
 
-        <!-- 2. សំណើម -->
-        <div class="card">
-            <div class="card-header">
-                <h3>សំណើម (SCD41)</h3>
-                <div class="icon-box hum-icon"><i class="fa-solid fa-droplet"></i></div>
+        <!-- 2. Humidity -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">សំណើម (SCD41)</span>
+                <div class="icon-wrapper hum-icon"><i class="fa-solid fa-droplet"></i></div>
             </div>
-            <div class="card-body">
-                <span class="value" id="hum">--</span><span class="unit">%</span>
+            <div class="metric-value-container">
+                <span class="metric-value" id="hum-val">--</span>
+                <span class="metric-unit">%</span>
             </div>
         </div>
 
         <!-- 3. Motor Status -->
-        <div class="card">
-            <div class="card-header">
-                <h3>ម៉ូទ័រកិន (Motor)</h3>
-                <div class="icon-box motor-icon"><i class="fa-solid fa-gear"></i></div>
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">ម៉ូទ័រកិន (Motor)</span>
+                <div class="icon-wrapper motor-icon"><i class="fa-solid fa-gears"></i></div>
             </div>
-            <div style="margin-top: 10px;">
-                <span id="motor-badge" class="badge badge-off"><span id="motor-text">STOPPED</span></span>
+            <div>
+                <span id="motor-pill" class="status-pill status-off">
+                    <span class="pulse-dot"></span><span id="motor-text">STOPPED</span>
+                </span>
             </div>
         </div>
 
         <!-- 4. Heater Status -->
-        <div class="card">
-            <div class="card-header">
-                <h3>បន្ទះកម្ដៅ (Heater)</h3>
-                <div class="icon-box heater-icon"><i class="fa-solid fa-fire"></i></div>
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">បន្ទះកម្ដៅ (Heater)</span>
+                <div class="icon-wrapper heater-icon"><i class="fa-solid fa-fire"></i></div>
             </div>
-            <div style="margin-top: 10px;">
-                <span id="heater-badge" class="badge badge-off"><span id="heater-text">OFF</span></span>
+            <div>
+                <span id="heater-pill" class="status-pill status-off">
+                    <span class="pulse-dot"></span><span id="heater-text">OFF</span>
+                </span>
             </div>
         </div>
 
         <!-- 5. Fan Status -->
-        <div class="card">
-            <div class="card-header">
-                <h3>កង្ហារ (Cooling Fan)</h3>
-                <div class="icon-box fan-icon"><i class="fa-solid fa-fan"></i></div>
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">កង្ហារ (Cooling Fan)</span>
+                <div class="icon-wrapper fan-icon"><i class="fa-solid fa-fan"></i></div>
             </div>
-            <div style="margin-top: 10px;">
-                <span id="fan-badge" class="badge badge-off"><span id="fan-text">OFF</span></span>
+            <div>
+                <span id="fan-pill" class="status-pill status-off">
+                    <span class="pulse-dot"></span><span id="fan-text">OFF</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- 6. System Status Card ( បង្ពេញចន្លោះប្រអប់ទី៦ ឱ្យស្អាត 3x2 ) -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">ប្រព័ន្ធគ្រប់គ្រង (System)</span>
+                <div class="icon-wrapper" style="color: #54a0ff; background: rgba(84, 160, 255, 0.12);"><i class="fa-solid fa-shield-halved"></i></div>
+            </div>
+            <div>
+                <span class="status-pill status-on">
+                    <span class="pulse-dot"></span>ONLINE
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- Graph Section -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i> ក្រាហ្វសីតុណ្ហភាព និងសំណើម (Real-time Graph)
+    <!-- Chart Section -->
+    <div class="chart-container-card">
+        <div class="chart-title">
+            <i class="fa-solid fa-chart-line" style="color: #00d2d3;"></i> ក្រាហ្វសីតុណ្ហភាព និងសំណើម (Real-time Analytics)
         </div>
-        <canvas id="compostChart" height="100"></canvas>
+        <canvas id="realtimeChart" height="90"></canvas>
     </div>
 
     <script>
-        // 1. Web Audio API - សំឡេង Alarm រោទ៍ខ្លាំង
+        // 1. Audio Alarm System
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let alarmInterval = null;
 
-        function playAlarmSound() {
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+        function triggerBuzzer() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // សំឡេងប្រេកង់ខ្ពស់
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
+            osc.stop(audioCtx.currentTime + 0.25);
         }
 
-        function startAlarm() {
-            document.getElementById('alarm-banner').style.display = 'block';
-            if (!alarmInterval) {
-                alarmInterval = setInterval(playAlarmSound, 600);
-            }
+        function playAlarm() {
+            document.getElementById('alert-box').style.display = 'block';
+            if (!alarmInterval) alarmInterval = setInterval(triggerBuzzer, 500);
         }
 
         function stopAlarm() {
-            document.getElementById('alarm-banner').style.display = 'none';
-            if (alarmInterval) {
-                clearInterval(alarmInterval);
-                alarmInterval = null;
-            }
+            document.getElementById('alert-box').style.display = 'none';
+            if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
         }
 
-        // 2. Chart.js Setup (បង្កើតក្រាហ្វ)
-        const ctx = document.getElementById('compostChart').getContext('2d');
-        const compostChart = new Chart(ctx, {
+        // 2. Modern Gradient Chart Setup [source: 5]
+        const ctx = document.getElementById('realtimeChart').getContext('2d');
+        
+        const tempGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        tempGradient.addColorStop(0, 'rgba(255, 71, 87, 0.4)');
+        tempGradient.addColorStop(1, 'rgba(255, 71, 87, 0.0)');
+
+        const humGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        humGradient.addColorStop(0, 'rgba(0, 210, 211, 0.4)');
+        humGradient.addColorStop(1, 'rgba(0, 210, 211, 0.0)');
+
+        const realtimeChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
                 datasets: [
                     {
-                        label: 'Temp (°C)',
+                        label: 'សីតុណ្ហភាព (°C)',
                         data: [],
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.3, fill: true
+                        borderColor: '#ff4757',
+                        borderWidth: 3,
+                        backgroundColor: tempGradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#ff4757'
                     },
                     {
-                        label: 'Humidity (%)',
+                        label: 'សំណើម (%)',
                         data: [],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.3, fill: true
+                        borderColor: '#00d2d3',
+                        borderWidth: 3,
+                        backgroundColor: humGradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#00d2d3'
                     }
                 ]
             },
             options: {
                 responsive: true,
                 scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
                 },
-                plugins: { legend: { labels: { color: '#f8fafc' } } }
+                plugins: { legend: { labels: { color: '#ffffff', font: { family: 'Kantumruy Pro' } } } }
             }
         });
 
-        // 3. Firebase Integration
+        // 3. Firebase Data Integration
         const firebaseConfig = {
             databaseURL: "https://compost-making-machine-default-rtdb.firebaseio.com"
         };
@@ -275,42 +423,38 @@
                 const tempVal = data.temp !== undefined ? data.temp : 0;
                 const humVal = data.hum !== undefined ? data.hum : 0;
 
-                document.getElementById('temp').innerText = tempVal.toFixed(1);
-                document.getElementById('hum').innerText = humVal.toFixed(1);
+                document.getElementById('temp-val').innerText = tempVal.toFixed(1);
+                document.getElementById('hum-val').innerText = humVal.toFixed(1);
 
-                // ពិនិត្យសីតុណ្ហភាពដើម្បីរោទ៍ Alarm
-                if (tempVal > 50.0) {
-                    startAlarm();
-                } else {
-                    stopAlarm();
-                }
+                // Alarm Rule ( > 50°C )
+                if (tempVal > 50.0) { playAlarm(); } else { stopAlarm(); }
 
                 // Motor Status
-                const motorBadge = document.getElementById('motor-badge');
+                const motorPill = document.getElementById('motor-pill');
                 document.getElementById('motor-text').innerText = data.motor === 1 ? "RUNNING" : "STOPPED";
-                motorBadge.className = data.motor === 1 ? "badge badge-on" : "badge badge-off";
+                motorPill.className = data.motor === 1 ? "status-pill status-on" : "status-pill status-off";
 
                 // Heater Status
-                const heaterBadge = document.getElementById('heater-badge');
+                const heaterPill = document.getElementById('heater-pill');
                 document.getElementById('heater-text').innerText = data.heater || "OFF";
-                heaterBadge.className = data.heater === "ON" ? "badge badge-on" : "badge badge-off";
+                heaterPill.className = data.heater === "ON" ? "status-pill status-on" : "status-pill status-off";
 
                 // Fan Status
-                const fanBadge = document.getElementById('fan-badge');
+                const fanPill = document.getElementById('fan-pill');
                 document.getElementById('fan-text').innerText = data.fan || "OFF";
-                fanBadge.className = data.fan === "ON" ? "badge badge-on" : "badge badge-off";
+                fanPill.className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
 
-                // Update Chart Data
-                const timeLabel = new Date().toLocaleTimeString();
-                if (compostChart.data.labels.length > 12) {
-                    compostChart.data.labels.shift();
-                    compostChart.data.datasets[0].data.shift();
-                    compostChart.data.datasets[1].data.shift();
+                // Push Data to Chart
+                const nowLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (realtimeChart.data.labels.length > 10) {
+                    realtimeChart.data.labels.shift();
+                    realtimeChart.data.datasets[0].data.shift();
+                    realtimeChart.data.datasets[1].data.shift();
                 }
-                compostChart.data.labels.push(timeLabel);
-                compostChart.data.datasets[0].data.push(tempVal);
-                compostChart.data.datasets[1].data.push(humVal);
-                compostChart.update();
+                realtimeChart.data.labels.push(nowLabel);
+                realtimeChart.data.datasets[0].data.push(tempVal);
+                realtimeChart.data.datasets[1].data.push(humVal);
+                realtimeChart.update();
             }
         });
     </script>
