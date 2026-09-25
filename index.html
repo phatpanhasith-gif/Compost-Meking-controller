@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compost Machine Dashboard</title>
-    <!-- Google Fonts & Font Awesome Icons -->
+    <title>Compost Machine Dashboard with Chart & Alarm</title>
+    <!-- Google Fonts, Font Awesome Icons, Chart.js & Firebase -->
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK v8 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -25,12 +25,7 @@
             --accent-orange: #f97316;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Kantumruy Pro', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kantumruy Pro', sans-serif; }
 
         body {
             background: radial-gradient(circle at top left, #1e293b, #0f172a);
@@ -42,149 +37,96 @@
             padding: 30px 15px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
+        .header { text-align: center; margin-bottom: 25px; }
         .header h1 {
             font-size: 2rem;
             font-weight: 700;
             background: linear-gradient(135deg, #34d399, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .header p { color: var(--text-sub); font-size: 0.95rem; margin-top: 6px; }
+
+        .alarm-banner {
+            display: none;
+            width: 100%; max-width: 1000px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 15px; border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center; font-weight: bold; font-size: 1.2rem;
+            animation: pulse-border 1s infinite alternate;
         }
 
-        .header p {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            margin-top: 6px;
+        @keyframes pulse-border {
+            from { box-shadow: 0 0 5px #ef4444; }
+            to { box-shadow: 0 0 20px #ef4444; }
         }
 
         .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 1000px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px; width: 100%; max-width: 1000px;
+            margin-bottom: 25px;
         }
 
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            border-radius: 20px; padding: 20px;
+            display: flex; flex-direction: column; justify-content: space-between;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .card-header h3 {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
+        .card-header { display: flex; align-items: center; justify-content: space-between; }
+        .card-header h3 { color: var(--text-sub); font-size: 0.9rem; }
 
         .icon-box {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
         }
-
         .temp-icon { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
         .hum-icon { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
         .motor-icon { background: rgba(249, 115, 22, 0.15); color: #f97316; }
         .heater-icon { background: rgba(234, 179, 8, 0.15); color: #eab308; }
         .fan-icon { background: rgba(20, 184, 166, 0.15); color: #14b8a6; }
 
-        .card-body {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .value {
-            font-size: 2.3rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .unit {
-            font-size: 1.1rem;
-            color: var(--text-sub);
-            font-weight: 400;
-        }
+        .card-body { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; }
+        .value { font-size: 2rem; font-weight: 700; }
+        .unit { font-size: 1rem; color: var(--text-sub); }
 
         .badge {
-            font-size: 0.85rem;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            width: fit-content;
+            font-size: 0.85rem; padding: 5px 12px; border-radius: 20px;
+            font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
         }
+        .badge-on { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-off { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        .badge-on {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+        /* Chart Section */
+        .chart-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 20px;
+            width: 100%; max-width: 1000px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
-
-        .badge-off {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--accent-red);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .pulse {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-            box-shadow: 0 0 10px currentColor;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 { font-size: 1.5rem; }
-            .value { font-size: 1.8rem; }
-        }
+        .chart-header { margin-bottom: 15px; color: var(--text-main); font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1><i class="fa-solid fa-leaf"></i> ប្រព័ន្ធគ្រប់គ្រងម៉ាស៊ីនជីកំប៉ុស</h1>
-        <p>Smart Compost Monitoring Dashboard</p>
+        <p>Real-time Monitoring & Graph Analytics</p>
+    </div>
+
+    <!-- Alert Banner ពេលក្ដៅពេក -->
+    <div class="alarm-banner" id="alarm-banner">
+        <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
     </div>
 
     <div class="container">
@@ -195,8 +137,7 @@
                 <div class="icon-box temp-icon"><i class="fa-solid fa-temperature-half"></i></div>
             </div>
             <div class="card-body">
-                <span class="value" id="temp">--</span>
-                <span class="unit">°C</span>
+                <span class="value" id="temp">--</span><span class="unit">°C</span>
             </div>
         </div>
 
@@ -207,95 +148,169 @@
                 <div class="icon-box hum-icon"><i class="fa-solid fa-droplet"></i></div>
             </div>
             <div class="card-body">
-                <span class="value" id="hum">--</span>
-                <span class="unit">%</span>
+                <span class="value" id="hum">--</span><span class="unit">%</span>
             </div>
         </div>
 
-        <!-- 3. ម៉ូទ័រកិន -->
+        <!-- 3. Motor Status -->
         <div class="card">
             <div class="card-header">
-                <h3>ស្ថានភាពម៉ូទ័រ (Motor)</h3>
+                <h3>ម៉ូទ័រកិន (Motor)</h3>
                 <div class="icon-box motor-icon"><i class="fa-solid fa-gear"></i></div>
             </div>
-            <div style="margin-top: 15px;">
-                <span id="motor-badge" class="badge badge-off"><span class="pulse"></span> <span id="motor-text">STOPPED</span></span>
+            <div style="margin-top: 10px;">
+                <span id="motor-badge" class="badge badge-off"><span id="motor-text">STOPPED</span></span>
             </div>
         </div>
 
-        <!-- 4. បន្ទះកម្ដៅ -->
+        <!-- 4. Heater Status -->
         <div class="card">
             <div class="card-header">
                 <h3>បន្ទះកម្ដៅ (Heater)</h3>
                 <div class="icon-box heater-icon"><i class="fa-solid fa-fire"></i></div>
             </div>
-            <div style="margin-top: 15px;">
-                <span id="heater-badge" class="badge badge-off"><span class="pulse"></span> <span id="heater-text">OFF</span></span>
+            <div style="margin-top: 10px;">
+                <span id="heater-badge" class="badge badge-off"><span id="heater-text">OFF</span></span>
             </div>
         </div>
 
-        <!-- 5. កង្ហារបញ្ចុះកម្ដៅ -->
+        <!-- 5. Fan Status -->
         <div class="card">
             <div class="card-header">
                 <h3>កង្ហារ (Cooling Fan)</h3>
                 <div class="icon-box fan-icon"><i class="fa-solid fa-fan"></i></div>
             </div>
-            <div style="margin-top: 15px;">
-                <span id="fan-badge" class="badge badge-off"><span class="pulse"></span> <span id="fan-text">OFF</span></span>
+            <div style="margin-top: 10px;">
+                <span id="fan-badge" class="badge badge-off"><span id="fan-text">OFF</span></span>
             </div>
         </div>
     </div>
 
+    <!-- Graph Section -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i> ក្រាហ្វសីតុណ្ហភាព និងសំណើម (Real-time Graph)
+        </div>
+        <canvas id="compostChart" height="100"></canvas>
+    </div>
+
     <script>
-        // 1. Firebase Config [source: 1]
+        // 1. Web Audio API - សំឡេង Alarm រោទ៍ខ្លាំង
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let alarmInterval = null;
+
+        function playAlarmSound() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // សំឡេងប្រេកង់ខ្ពស់
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function startAlarm() {
+            document.getElementById('alarm-banner').style.display = 'block';
+            if (!alarmInterval) {
+                alarmInterval = setInterval(playAlarmSound, 600);
+            }
+        }
+
+        function stopAlarm() {
+            document.getElementById('alarm-banner').style.display = 'none';
+            if (alarmInterval) {
+                clearInterval(alarmInterval);
+                alarmInterval = null;
+            }
+        }
+
+        // 2. Chart.js Setup (បង្កើតក្រាហ្វ)
+        const ctx = document.getElementById('compostChart').getContext('2d');
+        const compostChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Temp (°C)',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.3, fill: true
+                    },
+                    {
+                        label: 'Humidity (%)',
+                        data: [],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3, fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: { legend: { labels: { color: '#f8fafc' } } }
+            }
+        });
+
+        // 3. Firebase Integration
         const firebaseConfig = {
             databaseURL: "https://compost-making-machine-default-rtdb.firebaseio.com"
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const compostRef = database.ref('/compost');
 
-        // 2. Realtime Listener [source: 1]
-        compostRef.on('value', (snapshot) => {
+        database.ref('/compost').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // សីតុណ្ហភាព & សំណើម
-                document.getElementById('temp').innerText = data.temp !== undefined ? data.temp.toFixed(1) : '0.0';
-                document.getElementById('hum').innerText = data.hum !== undefined ? data.hum.toFixed(1) : '0.0';
+                const tempVal = data.temp !== undefined ? data.temp : 0;
+                const humVal = data.hum !== undefined ? data.hum : 0;
+
+                document.getElementById('temp').innerText = tempVal.toFixed(1);
+                document.getElementById('hum').innerText = humVal.toFixed(1);
+
+                // ពិនិត្យសីតុណ្ហភាពដើម្បីរោទ៍ Alarm
+                if (tempVal > 50.0) {
+                    startAlarm();
+                } else {
+                    stopAlarm();
+                }
 
                 // Motor Status
                 const motorBadge = document.getElementById('motor-badge');
-                const motorText = document.getElementById('motor-text');
-                if (data.motor === 1) {
-                    motorText.innerText = "RUNNING";
-                    motorBadge.className = "badge badge-on";
-                } else {
-                    motorText.innerText = "STOPPED";
-                    motorBadge.className = "badge badge-off";
-                }
+                document.getElementById('motor-text').innerText = data.motor === 1 ? "RUNNING" : "STOPPED";
+                motorBadge.className = data.motor === 1 ? "badge badge-on" : "badge badge-off";
 
                 // Heater Status
                 const heaterBadge = document.getElementById('heater-badge');
-                const heaterText = document.getElementById('heater-text');
-                if (data.heater === "ON") {
-                    heaterText.innerText = "HEATING (ON)";
-                    heaterBadge.className = "badge badge-on";
-                } else {
-                    heaterText.innerText = "OFF";
-                    heaterBadge.className = "badge badge-off";
-                }
+                document.getElementById('heater-text').innerText = data.heater || "OFF";
+                heaterBadge.className = data.heater === "ON" ? "badge badge-on" : "badge badge-off";
 
                 // Fan Status
                 const fanBadge = document.getElementById('fan-badge');
-                const fanText = document.getElementById('fan-text');
-                if (data.fan === "ON") {
-                    fanText.innerText = "COOLING (ON)";
-                    fanBadge.className = "badge badge-on";
-                } else {
-                    fanText.innerText = "OFF";
-                    fanBadge.className = "badge badge-off";
+                document.getElementById('fan-text').innerText = data.fan || "OFF";
+                fanBadge.className = data.fan === "ON" ? "badge badge-on" : "badge badge-off";
+
+                // Update Chart Data
+                const timeLabel = new Date().toLocaleTimeString();
+                if (compostChart.data.labels.length > 12) {
+                    compostChart.data.labels.shift();
+                    compostChart.data.datasets[0].data.shift();
+                    compostChart.data.datasets[1].data.shift();
                 }
+                compostChart.data.labels.push(timeLabel);
+                compostChart.data.datasets[0].data.push(tempVal);
+                compostChart.data.datasets[1].data.push(humVal);
+                compostChart.update();
             }
         });
     </script>
