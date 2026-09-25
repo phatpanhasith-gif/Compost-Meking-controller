@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Compost Machine Dashboard</title>
+    <title>COMPOST MACHINE CONTROLLER WEB</title>
     <!-- Google Fonts, Icons, Chart.js & Firebase -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,11 +24,11 @@
             --accent-motor: #ff9f43;
             --accent-heater: #ff6b6b;
             --accent-fan: #10ac84;
-            --success-glow: rgba(16, 172, 132, 0.2);
-            --danger-glow: rgba(255, 71, 87, 0.2);
+            --success-glow: rgba(16, 172, 132, 0.25);
+            --danger-glow: rgba(255, 71, 87, 0.25);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kantumruy Pro', 'Plus Jakarta Sans', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif; }
 
         body {
             background: var(--bg-gradient);
@@ -40,31 +40,35 @@
             align-items: center;
         }
 
-        /* Header UI */
+        /* --- Header Section --- */
         .dashboard-header {
             text-align: center;
             margin-bottom: 35px;
         }
 
-        .dashboard-header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #00d2d3, #54a0ff);
+        .main-title {
+            font-size: 2.3rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #10ac84 0%, #54a0ff 50%, #ff6b6b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            margin-bottom: 8px;
         }
 
-        .dashboard-header p {
+        .team-subtitle {
             color: var(--text-secondary);
-            font-size: 1rem;
-            margin-top: 8px;
+            font-size: 1.05rem;
+            font-weight: 500;
         }
 
-        /* Alert Banner */
+        .team-subtitle strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* --- Alert Banner --- */
         .alert-banner {
             display: none;
             width: 100%;
@@ -88,7 +92,7 @@
             to { transform: scale(1.01); }
         }
 
-        /* Grid Layout ( 3 Columns x 2 Rows Clean Layout ) */
+        /* --- Grid Layout ( 3 Columns x 2 Rows ) --- */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -104,11 +108,8 @@
             border-radius: 24px;
             padding: 24px;
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
         }
 
         .metric-card:hover {
@@ -167,7 +168,7 @@
             font-weight: 600;
         }
 
-        /* Modern Status Pills */
+        /* --- Status Pills --- */
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -202,7 +203,7 @@
             box-shadow: 0 0 8px currentColor;
         }
 
-        /* Chart Card */
+        /* --- Chart Section --- */
         .chart-container-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -212,6 +213,7 @@
             max-width: 1050px;
             backdrop-filter: blur(16px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
         }
 
         .chart-title {
@@ -224,23 +226,47 @@
             gap: 10px;
         }
 
+        /* --- Footer Section --- */
+        .dashboard-footer {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            width: 100%;
+            max-width: 1050px;
+        }
+
+        .footer-designer {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .footer-location {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
         @media (max-width: 900px) {
             .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .main-title { font-size: 1.7rem; }
         }
         @media (max-width: 600px) {
             .metrics-grid { grid-template-columns: 1fr; }
-            .dashboard-header h1 { font-size: 1.6rem; }
+            .main-title { font-size: 1.3rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Header ( តាមរូបភាព[cite: 6] ) -->
     <div class="dashboard-header">
-        <h1><i class="fa-solid fa-leaf"></i> ម៉ាស៊ីនជីកំប៉ុសឆ្លាតវៃ</h1>
-        <p>Smart Compost Monitoring & Automated Control System</p>
+        <h1 class="main-title">COMPOST MACHINE CONTROLLER WEB</h1>
+        <p class="team-subtitle">Team : <strong>Potensial of youth</strong></p>
     </div>
 
-    <!-- Alarm Box -->
+    <!-- Alert Box -->
     <div class="alert-banner" id="alert-box">
         <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
     </div>
@@ -310,7 +336,7 @@
             </div>
         </div>
 
-        <!-- 6. System Status Card ( បង្ពេញចន្លោះប្រអប់ទី៦ ឱ្យស្អាត 3x2 ) -->
+        <!-- 6. System Status Card -->
         <div class="metric-card">
             <div class="card-top">
                 <span class="card-title">ប្រព័ន្ធគ្រប់គ្រង (System)</span>
@@ -330,6 +356,12 @@
             <i class="fa-solid fa-chart-line" style="color: #00d2d3;"></i> ក្រាហ្វសីតុណ្ហភាព និងសំណើម (Real-time Analytics)
         </div>
         <canvas id="realtimeChart" height="90"></canvas>
+    </div>
+
+    <!-- Footer ( តាមរូបភាព[cite: 5] ) -->
+    <div class="dashboard-footer">
+        <div class="footer-designer">Design By Phat Panha Sith</div>
+        <div class="footer-location">Location : Hun Sen Khchau High School, Kampong Cham Province</div>
     </div>
 
     <script>
@@ -360,7 +392,7 @@
             if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
         }
 
-        // 2. Modern Gradient Chart Setup [source: 5]
+        // 2. Chart Setup
         const ctx = document.getElementById('realtimeChart').getContext('2d');
         
         const tempGradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -410,7 +442,7 @@
             }
         });
 
-        // 3. Firebase Data Integration
+        // 3. Firebase Integration
         const firebaseConfig = {
             databaseURL: "https://compost-making-machine-default-rtdb.firebaseio.com"
         };
@@ -426,7 +458,7 @@
                 document.getElementById('temp-val').innerText = tempVal.toFixed(1);
                 document.getElementById('hum-val').innerText = humVal.toFixed(1);
 
-                // Alarm Rule ( > 50°C )
+                // Alarm Check
                 if (tempVal > 50.0) { playAlarm(); } else { stopAlarm(); }
 
                 // Motor Status
@@ -444,7 +476,7 @@
                 document.getElementById('fan-text').innerText = data.fan || "OFF";
                 fanPill.className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
 
-                // Push Data to Chart
+                // Chart Push
                 const nowLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 if (realtimeChart.data.labels.length > 10) {
                     realtimeChart.data.labels.shift();
