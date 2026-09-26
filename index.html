@@ -1,376 +1,446 @@
-<!DOCTYPE html>
+[9/26/2026 3:29 PM] ផាត បញ្ញាសិត្ស អនុ.ទី2 ១០ (ខ): <!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Planetary Orbit</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>COMPOST MACHINE CONTROLLER WEB</title>
+    <!-- Google Fonts, Icons, Chart.js & Firebase -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Kantumruy Pro', sans-serif;
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent-temp: #ff4757;
+            --accent-hum: #00d2d3;
+            --accent-motor: #ff9f43;
+            --accent-heater: #ff6b6b;
+            --accent-fan: #10ac84;
+            --success-glow: rgba(16, 172, 132, 0.25);
+            --danger-glow: rgba(255, 71, 87, 0.25);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif; }
 
         body {
-            background-color: #050814;
-            color: #ffffff;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
             min-height: 100vh;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
+        }
+
+        /* Header */
+        .dashboard-header { text-align: center; margin-bottom: 30px; }
+        .main-title {
+            font-size: 2.3rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
+            background: linear-gradient(90deg, #10ac84 0%, #54a0ff 50%, #ff6b6b 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
+        }
+        .team-subtitle { color: var(--text-secondary); font-size: 1.05rem; }
+        .team-subtitle strong { color: #ffffff; }
+
+        /* Alert Banner */
+        .alert-banner {
+            display: none; width: 100%; max-width: 1050px;
+            background: rgba(255, 71, 87, 0.15); border: 1px solid #ff4757; color: #ff4757;
+            padding: 16px; border-radius: 16px; margin-bottom: 25px; text-align: center; font-weight: 700;
+            backdrop-filter: blur(10px); box-shadow: 0 0 25px rgba(255, 71, 87, 0.3);
+            animation: pulse-alert 1s infinite alternate;
+        }
+        @keyframes pulse-alert { from { transform: scale(0.99); } to { transform: scale(1.01); } }
+
+        /* --- Stepped Process Tracker UI --- */
+        .tracker-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 28px; padding: 28px; width: 100%; max-width: 1050px;
+            backdrop-filter: blur(16px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .tracker-header {
+            font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 25px; display: flex; align-items: center; gap: 10px;
+        }
+
+        .stepper-wrapper {
+            display: flex;
+            justify-content: space-between;
             position: relative;
         }
 
-        /* Background Canvas Particle */
-        #space-bg {
+        .stepper-wrapper::before {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            top: 25px;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
         }
 
-        .header-title {
-            text-align: center;
-            margin-top: 20px;
-            z-index: 10;
+        .step-item {
             position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+[9/26/2026 3:29 PM] ផាត បញ្ញាសិត្ស អនុ.ទី2 ១០ (ខ): .step-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            transition: all 0.4s ease;
         }
 
-        .header-title h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(45deg, #00f2fe, #4facfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
-        }
-
-        .header-title p {
-            color: #a0aec0;
+        .step-title {
             font-size: 0.95rem;
-            margin-top: 5px;
-        }
-
-        /* Orbit Container */
-        .universe {
-            position: relative;
-            width: 600px;
-            height: 600px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            margin: 40px 0;
-        }
-
-        /* Central Sun (Leader / Main Node) */
-        .sun {
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            background: radial-gradient(circle, #ff9a9e 0%, #fecfef 99%, #feada6 100%);
-            background: radial-gradient(circle, #4facfe 0%, #00f2fe 100%);
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(0, 242, 254, 0.8), 0 0 100px rgba(79, 172, 254, 0.4);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
             text-align: center;
-            z-index: 5;
-            cursor: pointer;
-            transition: transform 0.3s ease;
         }
 
-        .sun:hover {
-            transform: scale(1.1);
-        }
-
-        .sun img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ffffff;
-        }
-
-        .sun .name {
+        .step-desc {
             font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 4px;
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .sun .role {
-            font-size: 0.65rem;
-            color: #e2e8f0;
-        }
-
-        /* Orbit Rings */
-        .orbit {
-            position: absolute;
-            border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            animation: spin infinite linear;
-        }
-
-        .universe:hover .orbit {
-            animation-play-state: paused; /* បញ្ឈប់ការវិលពេល Hover មើលសមាជិក */
-        }
-
-        /* Orbit 1 (Inner) */
-        .orbit-1 {
-            width: 280px;
-            height: 280px;
-            animation-duration: 20s;
-        }
-
-        /* Orbit 2 (Outer) */
-        .orbit-2 {
-            width: 480px;
-            height: 480px;
-            animation-duration: 35s;
-            animation-direction: reverse;
-        }
-
-        /* Planet Node */
-        .planet-node {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-        }
-
-        /* Positioning Planets on the Ring */
-        .pos-1 { transform: rotate(0deg) translate(140px) rotate(0deg); }
-        .pos-2 { transform: rotate(120deg) translate(140px) rotate(-120deg); }
-        .pos-3 { transform: rotate(240deg) translate(140px) rotate(-240deg); }
-
-        .pos-4 { transform: rotate(45deg) translate(240px) rotate(-45deg); }
-        .pos-5 { transform: rotate(135deg) translate(240px) rotate(-135deg); }
-        .pos-6 { transform: rotate(225deg) translate(240px) rotate(-225deg); }
-        .pos-7 { transform: rotate(315deg) translate(240px) rotate(-315deg); }
-
-        .planet {
-            width: 65px;
-            height: 65px;
-            margin-top: -32.5px;
-            margin-left: -32.5px;
-            border-radius: 50%;
-            background: #1a202c;
-            border: 2px solid #4facfe;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
-            position: relative;
-        }
-
-        .planet img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .planet:hover {
-            transform: scale(1.3);
-            border-color: #00f2fe;
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.9);
-            z-index: 20;
-        }
-
-        /* Planet Label / Tooltip */
-        .planet-info {
-            position: absolute;
-            bottom: -35px;
-            white-space: nowrap;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 3px 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255, 255, 255, 0.4);
             text-align: center;
-            pointer-events: none;
         }
 
-        .planet-info .p-name {
-            font-size: 0.7rem;
+        /* Active Step Style ( ពេលដល់ដំណាក់កាលណា ភ្លឺដំណាក់កាលនោះ ) */
+        .step-item.active .step-icon {
+            background: linear-gradient(135deg, #10ac84, #54a0ff);
+            border-color: #54a0ff;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(84, 160, 255, 0.6);
+            transform: scale(1.15);
+        }
+
+        .step-item.active .step-title {
+            color: #54a0ff;
+        }
+
+        .step-item.active .step-desc {
+            color: var(--text-primary);
             font-weight: 600;
-            color: #fff;
         }
 
-        .planet-info .p-role {
-            font-size: 0.6rem;
-            color: #38bdf8;
+        .step-item.completed .step-icon {
+            background: rgba(16, 172, 132, 0.2);
+            border-color: #10ac84;
+            color: #10ac84;
         }
 
-        /* Keyframe Rotation */
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* Grid Layout ( 5 Cards ) */
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+            width: 100%; max-width: 1050px; margin-bottom: 30px;
         }
-
-        /* Counter Rotation for Text readability */
-        .orbit-1 .planet { animation: counter-spin 20s infinite linear; }
-        .orbit-2 .planet { animation: counter-spin-reverse 35s infinite linear; }
-
-        .universe:hover .planet {
-            animation-play-state: paused;
+        .metric-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 24px; padding: 24px; backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;
         }
+        .metric-card:hover { transform: translateY(-6px); border-color: rgba(255, 255, 255, 0.25); }
 
-        @keyframes counter-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(-360deg); }
-        }
+        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .card-title { color: var(--text-secondary); font-size: 0.95rem; font-weight: 600; }
 
-        @keyframes counter-spin-reverse {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .icon-wrapper {
+            width: 48px; height: 48px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .temp-icon { color: var(--accent-temp); background: rgba(255, 71, 87, 0.12); }
+        .hum-icon { color: var(--accent-hum); background: rgba(0, 210, 211, 0.12); }
+        .motor-icon { color: var(--accent-motor); background: rgba(255, 159, 67, 0.12); }
+        .heater-icon { color: var(--accent-heater); background: rgba(255, 107, 107, 0.12); }
+        .fan-icon { color: var(--accent-fan); background: rgba(16, 172, 132, 0.12); }
 
-        @media (max-width: 650px) {
-            .universe {
-                transform: scale(0.65);
-                margin: -50px 0;
-            }
+        .metric-value-container { display: flex; align-items: baseline; gap: 8px; }
+        .metric-value { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .metric-unit { font-size: 1.1rem; color: var(--text-secondary); font-weight: 600; }
+
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+            border-radius: 30px; font-size: 0.88rem; font-weight: 700; margin-top: 5px;
         }
+        .status-on { background: rgba(16, 172, 132, 0.15); color: #10ac84; border: 1px solid rgba(16, 172, 132, 0.4); }
+        .status-off { background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); }
+        .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; box-shadow: 0 0 8px currentColor; }
+[9/26/2026 3:29 PM] ផាត បញ្ញាសិត្ស អនុ.ទី2 ១០ (ខ): /* Chart */
+        .chart-container-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 28px; padding: 28px; width: 100%; max-width: 1050px;
+            backdrop-filter: blur(16px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); margin-bottom: 40px;
+        }
+        .chart-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+        /* Footer */
+        .dashboard-footer { text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; width: 100%; max-width: 1050px; }
+        .footer-designer { font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+        .footer-location { font-size: 0.95rem; color: var(--text-secondary); }
+
+        @media (max-width: 900px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .stepper-wrapper { flex-direction: column; gap: 20px; }
+            .stepper-wrapper::before { display: none; }
+        }
+        @media (max-width: 600px) { .metrics-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <canvas id="space-bg"></canvas>
-
-    <div class="header-title">
-        <h1>រចនាសម្ព័ន្ធក្រុមការងារ</h1>
-        <p>យក Cursor ដាក់លើភពដើម្បីពិនិត្យមើលសមាជិក</p>
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="main-title">COMPOST MACHINE CONTROLLER WEB</h1>
+        <p class="team-subtitle">Team : <strong>Potensial of youth</strong></p>
     </div>
 
-    <div class="universe">
-        <!-- Center Node (Team Leader / Sun) -->
-        <div class="sun">
-            <img src="https://i.pravatar.cc/150?img=68" alt="Leader">
-            <div class="name">សុខ ចាន់ដារ៉ា</div>
-            <div class="role">Team Leader</div>
-        </div>
+    <!-- Alert Box -->
+    <div class="alert-banner" id="alert-box">
+        <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
+    </div>
 
-        <!-- Inner Orbit (Core Members) -->
-        <div class="orbit orbit-1">
-            <div class="planet-node pos-1">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=32" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">គឹម ស៊ាង</div>
-                        <div class="p-role">IoT Engineer</div>
-                    </div>
-                </div>
-            </div>
-            <div class="planet-node pos-2">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=47" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">មករា</div>
-                        <div class="p-role">Hardware Lead</div>
-                    </div>
-                </div>
-            </div>
-            <div class="planet-node pos-3">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=12" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">វឌ្ឍនៈ</div>
-                        <div class="p-role">Firmware Dev</div>
-                    </div>
-                </div>
-            </div>
+    <!-- Stepped Process Tracker Card -->
+    <div class="tracker-card">
+        <div class="tracker-header">
+            <i class="fa-solid fa-bars-staggered" style="color: #54a0ff;"></i> ដំណាក់កាលនៃដំណើរការកំប៉ុស (Compost Timeline Tracker)
         </div>
-
-        <!-- Outer Orbit (Support / Other Members) -->
-        <div class="orbit orbit-2">
-            <div class="planet-node pos-4">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=5" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">សុភា</div>
-                        <div class="p-role">UI/UX Design</div>
-                    </div>
-                </div>
+        <div class="stepper-wrapper">
+            <!-- Step 1 -->
+            <div class="step-item active" id="step-1">
+                <div class="step-icon"><i class="fa-solid fa-seedling"></i></div>
+                <div class="step-title">១. ចាប់ផ្តើមដំណើរការ</div>
+                <div class="step-desc">Start(25-35°C)</div>
             </div>
-            <div class="planet-node pos-5">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=60" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">រតនៈ</div>
-                        <div class="p-role">Backend Dev</div>
-                    </div>
-                </div>
+            <!-- Step 2 -->
+            <div class="step-item" id="step-2">
+                <div class="step-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                <div class="step-title">២. កូរ/កិន</div>
+                <div class="step-desc">Grind/ Stir (40-50°C)</div>
             </div>
-            <div class="planet-node pos-6">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=22" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">លីដា</div>
-                        <div class="p-role">Mobile App</div>
-                    </div>
-                </div>
+            <!-- Step 3 -->
+            <div class="step-item" id="step-3">
+                <div class="step-icon"><i class="fa-solid fa-wind"></i></div>
+                <div class="step-title">៣. បញ្ចេញកម្តៅ</div>
+                <div class="step-desc">Cooling Phase</div>
             </div>
-            <div class="planet-node pos-7">
-                <div class="planet">
-                    <img src="https://i.pravatar.cc/150?img=9" alt="Member">
-                    <div class="planet-info">
-                        <div class="p-name">តារា</div>
-                        <div class="p-role">QA Tester</div>
-                    </div>
-                </div>
+            <!-- Step 4 -->
+            <div class="step-item" id="step-4">
+                <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="step-title">៤. រួចរាល់</div>
+                <div class="step-desc">Curing / Ready</div>
             </div>
         </div>
     </div>
 
-    <!-- Starfield Particles Effect -->
-    <script>
-        const canvas = document.getElementById('space-bg');
-        const ctx = canvas.getContext('2d');
+    <!-- Grid Cards -->
+    <div class="metrics-grid">
+        <!-- Temp -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">សីតុណ្ហភាព (DS18B20)</span>
+                <div class="icon-wrapper temp-icon"><i class="fa-solid fa-temperature-high"></i></div>
+            </div>
+            <div class="metric-value-container">
+                <span class="metric-value" id="temp-val">--</span>
+                <span class="metric-unit">°C</span>
+            </div>
+        </div>
+[9/26/2026 3:29 PM] ផាត បញ្ញាសិត្ស អនុ.ទី2 ១០ (ខ): <!-- Humidity -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">សំណើម (SCD41)</span>
+                <div class="icon-wrapper hum-icon"><i class="fa-solid fa-droplet"></i></div>
+            </div>
+            <div class="metric-value-container">
+                <span class="metric-value" id="hum-val">--</span>
+                <span class="metric-unit">%</span>
+            </div>
+        </div>
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        <!-- Motor Status -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">ម៉ូទ័រកិន (Motor)</span>
+                <div class="icon-wrapper motor-icon"><i class="fa-solid fa-gears"></i></div>
+            </div>
+            <div>
+                <span id="motor-pill" class="status-pill status-off">
+                    <span class="pulse-dot"></span><span id="motor-text">STOPPED</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Heater Status -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">បន្ទះកម្ដៅ (Heater)</span>
+                <div class="icon-wrapper heater-icon"><i class="fa-solid fa-fire"></i></div>
+            </div>
+            <div>
+                <span id="heater-pill" class="status-pill status-off">
+                    <span class="pulse-dot"></span><span id="heater-text">OFF</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Fan Status -->
+        <div class="metric-card">
+            <div class="card-top">
+                <span class="card-title">កង្ហារ (Cooling Fan)</span>
+                <div class="icon-wrapper fan-icon"><i class="fa-solid fa-fan"></i></div>
+            </div>
+            <div>
+                <span id="fan-pill" class="status-pill status-off">
+                    <span class="pulse-dot"></span><span id="fan-text">OFF</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Card -->
+    <div class="chart-container-card">
+        <div class="chart-title">
+            <i class="fa-solid fa-chart-line" style="color: #00d2d3;"></i> ក្រាហ្វិចសីតុណ្ហភាព និងសំណើម (Real-time Analytics)
+        </div>
+        <canvas id="realtimeChart" height="90"></canvas>
+    </div>
+
+    <!-- Footer -->
+    <div class="dashboard-footer">
+        <div class="footer-designer">Design By Phat Panha Sith</div>
+        <div class="footer-location">Location : Hun Sen Khchau High School, Kampong Cham Province</div>
+    </div>
+[9/26/2026 3:29 PM] ផាត បញ្ញាសិត្ស អនុ.ទី2 ១០ (ខ): <script>
+        const audioCtx = new (window.AudioContext  window.webkitAudioContext)();
+        let alarmInterval = null;
+
+        function triggerBuzzer() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.25);
         }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
 
-        const stars = Array.from({ length: 120 }, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.5,
-            alpha: Math.random(),
-            speed: Math.random() * 0.02
-        }));
+        function playAlarm() {
+            document.getElementById('alert-box').style.display = 'block';
+            if (!alarmInterval) alarmInterval = setInterval(triggerBuzzer, 500);
+        }
 
-        function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            stars.forEach(star => {
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                ctx.fill();
+        function stopAlarm() {
+            document.getElementById('alert-box').style.display = 'none';
+            if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
+        }
 
-                star.alpha += star.speed;
-                if (star.alpha > 1 || star.alpha < 0) {
-                    star.speed = -star.speed;
+        // Update Tracker Step Active state
+        function setStepActive(stepNumber) {
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (i < stepNumber) {
+                    el.className = "step-item completed";
+                } else if (i === stepNumber) {
+                    el.className = "step-item active";
+                } else {
+                    el.className = "step-item";
                 }
-            });
-            requestAnimationFrame(drawStars);
+            }
         }
-        drawStars();
+
+        const ctx = document.getElementById('realtimeChart').getContext('2d');
+        const tempGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        tempGradient.addColorStop(0, 'rgba(255, 71, 87, 0.4)');
+        tempGradient.addColorStop(1, 'rgba(255, 71, 87, 0.0)');
+
+        const humGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        humGradient.addColorStop(0, 'rgba(0, 210, 211, 0.4)');
+        humGradient.addColorStop(1, 'rgba(0, 210, 211, 0.0)');
+
+        const realtimeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'សីតុណ្ហភាព (°C)', data: [], borderColor: '#ff4757', borderWidth: 3, backgroundColor: tempGradient, fill: true, tension: 0.4 },
+                    { label: 'សំណើម (%)', data: [], borderColor: '#00d2d3', borderWidth: 3, backgroundColor: humGradient, fill: true, tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } },
+                plugins: { legend: { labels: { color: '#ffffff' } } }
+            }
+        });
+
+        const firebaseConfig = { databaseURL: "https://compost-making-machine-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        database.ref('/compost').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const tempVal = data.temp !== undefined ? data.temp : 0;
+                const humVal = data.hum !== undefined ? data.hum : 0;
+
+                document.getElementById('temp-val').innerText = tempVal.toFixed(1);
+                document.getElementById('hum-val').innerText = humVal.toFixed(1);
+
+                if (tempVal > 50.0) playAlarm(); else stopAlarm();
+
+                document.getElementById('motor-text').innerText = data.motor === 1 ? "RUNNING" : "STOPPED";
+                document.getElementById('motor-pill').className = data.motor === 1 ? "status-pill status-on" : "status-pill status-off";
+
+                document.getElementById('heater-text').innerText = data.heater  "OFF";
+                document.getElementById('heater-pill').className = data.heater === "ON" ? "status-pill status-on" : "status-pill status-off";
+[9/26/2026 3:29 PM] ផាត បញ្ញាសិត្ស អនុ.ទី2 ១០ (ខ): document.getElementById('fan-text').innerText = data.fan  "OFF";
+                document.getElementById('fan-pill').className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
+
+                // --- គណនាអាប់ដេត Tracker តាមសីតុណ្ហភាព និង Fan Status ---
+                if (tempVal < 40.0) {
+                    setStepActive(1); // ដំណាក់កាលទី ១: ចាប់ផ្តើមផ្អែម
+                } else if (tempVal >= 40.0 && tempVal <= 50.0) {
+                    setStepActive(2); // ដំណាក់កាលទី ២: បំបែកខ្លាំង
+                } else if (tempVal > 50.0  data.fan === "ON") {
+                    setStepActive(3); // ដំណាក់កាលទី ៣: បញ្ចុះកម្ដៅ (កង្ហារដើរ)
+                }
+
+                const nowLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (realtimeChart.data.labels.length > 10) {
+                    realtimeChart.data.labels.shift();
+                    realtimeChart.data.datasets[0].data.shift();
+                    realtimeChart.data.datasets[1].data.shift();
+                }
+                realtimeChart.data.labels.push(nowLabel);
+                realtimeChart.data.datasets[0].data.push(tempVal);
+                realtimeChart.data.datasets[1].data.push(humVal);
+                realtimeChart.update();
+            }
+        });
     </script>
 </body>
 </html>
