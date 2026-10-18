@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COMPOST MACHINE CONTROLLER WEB</title>
-    <!-- Google Fonts, Icons, Chart.js & Firebase -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -24,8 +23,6 @@
             --accent-motor: #ff9f43;
             --accent-heater: #ff6b6b;
             --accent-fan: #10ac84;
-            --success-glow: rgba(16, 172, 132, 0.25);
-            --danger-glow: rgba(255, 71, 87, 0.25);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif; }
@@ -40,7 +37,6 @@
             align-items: center;
         }
 
-        /* Header */
         .dashboard-header { text-align: center; margin-bottom: 30px; }
         .main-title {
             font-size: 2.3rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
@@ -50,17 +46,13 @@
         .team-subtitle { color: var(--text-secondary); font-size: 1.05rem; }
         .team-subtitle strong { color: #ffffff; }
 
-        /* Alert Banner */
         .alert-banner {
             display: none; width: 100%; max-width: 1050px;
             background: rgba(255, 71, 87, 0.15); border: 1px solid #ff4757; color: #ff4757;
             padding: 16px; border-radius: 16px; margin-bottom: 25px; text-align: center; font-weight: 700;
             backdrop-filter: blur(10px); box-shadow: 0 0 25px rgba(255, 71, 87, 0.3);
-            animation: pulse-alert 1s infinite alternate;
         }
-        @keyframes pulse-alert { from { transform: scale(0.99); } to { transform: scale(1.01); } }
 
-        /* --- Stepped Process Tracker UI --- */
         .tracker-card {
             background: var(--card-bg); border: 1px solid var(--card-border);
             border-radius: 28px; padding: 28px; width: 100%; max-width: 1050px;
@@ -73,86 +65,30 @@
             margin-bottom: 25px; display: flex; align-items: center; gap: 10px;
         }
 
-        .stepper-wrapper {
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-        }
-
+        .stepper-wrapper { display: flex; justify-content: space-between; position: relative; }
         .stepper-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 25px;
-            left: 5%;
-            right: 5%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: 1;
+            content: ''; position: absolute; top: 25px; left: 5%; right: 5%; height: 4px;
+            background: rgba(255, 255, 255, 0.1); z-index: 1;
         }
 
-        .step-item {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-        }
-
+        .step-item { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; flex: 1; }
         .step-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #1e293b;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            transition: all 0.4s ease;
+            width: 52px; height: 52px; border-radius: 50%; background: #1e293b;
+            border: 3px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            margin-bottom: 12px; transition: all 0.4s ease;
         }
+        .step-title { font-size: 0.95rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; text-align: center; }
+        .step-desc { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); text-align: center; }
 
-        .step-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            text-align: center;
-        }
-
-        .step-desc {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.4);
-            text-align: center;
-        }
-
-        /* Active Step Style ( ពេលដល់ដំណាក់កាលណា ភ្លឺដំណាក់កាលនោះ ) */
         .step-item.active .step-icon {
-            background: linear-gradient(135deg, #10ac84, #54a0ff);
-            border-color: #54a0ff;
-            color: #ffffff;
-            box-shadow: 0 0 25px rgba(84, 160, 255, 0.6);
-            transform: scale(1.15);
+            background: linear-gradient(135deg, #10ac84, #54a0ff); border-color: #54a0ff; color: #ffffff;
+            box-shadow: 0 0 25px rgba(84, 160, 255, 0.6); transform: scale(1.15);
         }
+        .step-item.active .step-title { color: #54a0ff; }
+        .step-item.active .step-desc { color: var(--text-primary); font-weight: 600; }
+        .step-item.completed .step-icon { background: rgba(16, 172, 132, 0.2); border-color: #10ac84; color: #10ac84; }
 
-        .step-item.active .step-title {
-            color: #54a0ff;
-        }
-
-        .step-item.active .step-desc {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .step-item.completed .step-icon {
-            background: rgba(16, 172, 132, 0.2);
-            border-color: #10ac84;
-            color: #10ac84;
-        }
-
-        /* Grid Layout ( 5 Cards ) */
         .metrics-grid {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
             width: 100%; max-width: 1050px; margin-bottom: 30px;
@@ -190,7 +126,6 @@
         .status-off { background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); }
         .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; box-shadow: 0 0 8px currentColor; }
 
-        /* Chart */
         .chart-container-card {
             background: var(--card-bg); border: 1px solid var(--card-border);
             border-radius: 28px; padding: 28px; width: 100%; max-width: 1050px;
@@ -198,7 +133,6 @@
         }
         .chart-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
-        /* Footer */
         .dashboard-footer { text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; width: 100%; max-width: 1050px; }
         .footer-designer { font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
         .footer-location { font-size: 0.95rem; color: var(--text-secondary); }
@@ -213,42 +147,35 @@
 </head>
 <body>
 
-    <!-- Header -->
     <div class="dashboard-header">
         <h1 class="main-title">COMPOST MACHINE CONTROLLER WEB</h1>
         <p class="team-subtitle">Team : <strong>Potensial of youth</strong></p>
     </div>
 
-    <!-- Alert Box -->
     <div class="alert-banner" id="alert-box">
         <i class="fa-solid fa-triangle-exclamation"></i> ការព្រមាន៖ សីតុណ្ហភាពឡើងក្ដៅខ្លាំងពេក (លើសពី 50°C)!
     </div>
 
-    <!-- Stepped Process Tracker Card -->
     <div class="tracker-card">
         <div class="tracker-header">
             <i class="fa-solid fa-bars-staggered" style="color: #54a0ff;"></i> ដំណាក់កាលនៃដំណើរការកំប៉ុស (Compost Timeline Tracker)
         </div>
         <div class="stepper-wrapper">
-            <!-- Step 1 -->
             <div class="step-item active" id="step-1">
                 <div class="step-icon"><i class="fa-solid fa-seedling"></i></div>
                 <div class="step-title">១. ចាប់ផ្តើមដំណើរការ</div>
                 <div class="step-desc">Start (25-35°C)</div>
             </div>
-            <!-- Step 2 -->
             <div class="step-item" id="step-2">
                 <div class="step-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
                 <div class="step-title">២. កិន/កូរ</div>
                 <div class="step-desc">Grind/ Stir (40-50°C)</div>
             </div>
-            <!-- Step 3 -->
             <div class="step-item" id="step-3">
                 <div class="step-icon"><i class="fa-solid fa-wind"></i></div>
                 <div class="step-title">៣. បញ្ចុះកម្ដៅ</div>
                 <div class="step-desc">Cooling Phase</div>
             </div>
-            <!-- Step 4 -->
             <div class="step-item" id="step-4">
                 <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
                 <div class="step-title">៤. រួចរាល់</div>
@@ -257,7 +184,6 @@
         </div>
     </div>
 
-    <!-- Grid Cards -->
     <div class="metrics-grid">
         <!-- Temp -->
         <div class="metric-card">
@@ -271,10 +197,10 @@
             </div>
         </div>
 
-        <!-- Humidity -->
+        <!-- Humidity (DHT11) -->
         <div class="metric-card">
             <div class="card-top">
-                <span class="card-title">សំណើម (HW-080)</span>
+                <span class="card-title">សំណើម (DHT11)</span>
                 <div class="icon-wrapper hum-icon"><i class="fa-solid fa-droplet"></i></div>
             </div>
             <div class="metric-value-container">
@@ -323,7 +249,6 @@
         </div>
     </div>
 
-    <!-- Chart Card -->
     <div class="chart-container-card">
         <div class="chart-title">
             <i class="fa-solid fa-chart-line" style="color: #00d2d3;"></i> ក្រាភិចសីតុណ្ហភាព និងសំណើម (Real-time Analytics)
@@ -331,7 +256,6 @@
         <canvas id="realtimeChart" height="90"></canvas>
     </div>
 
-    <!-- Footer -->
     <div class="dashboard-footer">
         <div class="footer-designer">Design By Phat Panha Sith</div>
         <div class="footer-location">Location : Hun Sen Khchau High School, Kampong Cham Province</div>
@@ -362,7 +286,6 @@
             if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
         }
 
-        // Update Tracker Step Active state
         function setStepActive(stepNumber) {
             for (let i = 1; i <= 4; i++) {
                 const el = document.getElementById(`step-${i}`);
@@ -425,13 +348,12 @@
                 document.getElementById('fan-text').innerText = data.fan || "OFF";
                 document.getElementById('fan-pill').className = data.fan === "ON" ? "status-pill status-on" : "status-pill status-off";
 
-                // --- គណនាអាប់ដេត Tracker តាមសីតុណ្ហភាព និង Fan Status ---
                 if (tempVal < 40.0) {
-                    setStepActive(1); // ដំណាក់កាលទី ១: ចាប់ផ្តើមដំណើរការ
+                    setStepActive(1); 
                 } else if (tempVal >= 40.0 && tempVal <= 50.0) {
-                    setStepActive(2); // ដំណាក់កាលទី ២:កិន/កូរ
+                    setStepActive(2); 
                 } else if (tempVal > 50.0 || data.fan === "ON") {
-                    setStepActive(3); // ដំណាក់កាលទី ៣: បញ្ចុះកម្ដៅ (កង្ហារដើរ)
+                    setStepActive(3); 
                 }
 
                 const nowLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
